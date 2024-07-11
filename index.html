@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js" integrity="sha512-bCsBoYoW6zE0aja5xcIyoCDPfT27+cGr7AOCqelttLVRGay6EKGQbR6wm6SUcUGOMGXJpj+jrIpMS6i80+kZPw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <style>
+      body,
+      html {
+        margin: 0;
+        overflow: hidden;
+      }
+      #camera-view {
+        width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="camera-view"></div>
+    <script>
+      Quagga.init(
+        {
+          locate: false,
+          frequency: 2,
+          inputStream: {
+            type: "LiveStream",
+            target: document.getElementById("camera-view"),
+            constraints: {
+              width: 1080,
+              height: 1080,
+              frameRate: 10,
+              tryVertical: true,
+              facingMode: "environment",
+              focusMode: "continuous",
+              successTimeout: 1000,
+            },
+            area: {
+              top: "20%",
+              right: "20%",
+              left: "20%",
+              bottom: "20%",
+            },
+          },
+          decoder: {
+            readers: ["ean_reader"],
+            multiple: false,
+          },
+        },
+        (error) => {
+          if (error) {
+            console.error(error);
+            return;
+          }
+
+          Quagga.start();
+        },
+      );
+
+      Quagga.onDetected(async (result) => {
+        if (!confirm("コードを登録しますか？")) {
+          return;
+        }
+
+        // サーバーにコードを送信するためのフェッチリクエスト
+        const response = await fetch("/addBook", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code: result.codeResult.code }),
+        });
+
+        if (response.ok) {
+          console.log("コードが正常に送信されました");
+        } else {
+          console.error("コードの送信に失敗しました" + result.codeResult.code);
+        }
+      });
+    </script>
+  </body>
+</html>

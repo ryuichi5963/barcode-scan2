@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Books APIs</title>
+  </head>
+  <body></body>
+  <script>
+    const BOOK_API_PREFIX = "https://www.googleapis.com/books/v1/volumes?country=JP&q=isbn:";
+    const isbn = "9784798160276";
+    console.log(BOOK_API_PREFIX + isbn);
+
+    fetch(BOOK_API_PREFIX + isbn)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        console.log(data.items[0].volumeInfo);
+        console.log(data.items[0].volumeInfo.imageLinks.smallThumbnail);
+        for (key in data.items[0].volumeInfo) {
+          console.log(key + ":" + data.items[0].volumeInfo[key]);
+        }
+      });
+  </script>
+</html>
